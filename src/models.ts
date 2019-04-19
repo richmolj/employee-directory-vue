@@ -11,6 +11,7 @@ import {
 export class ApplicationRecord extends SpraypaintBase {
   static baseUrl = "/"
   static apiNamespace = "api/v1"
+  static sync = false
 }
 
 @Model()

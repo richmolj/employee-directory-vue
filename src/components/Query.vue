@@ -1,6 +1,6 @@
 <template>
   <div class="card query">
-    <h3>Query</h3>
+    <h3>Query (last title: {{lastTitle}})</h3>
     <div class='search-controls'>
       <form v-on:submit.prevent="search()">
         <div class="row">
@@ -70,7 +70,6 @@ export default Vue.extend({
     }
 
     return {
-      employees: [] as Employee[],
       sort,
       totalCount: null as number | null,
       currentPage: 1 as number,
@@ -101,12 +100,23 @@ export default Vue.extend({
     },
     hasNextPage() : boolean {
       return (this.currentPage * 10) < (this.totalCount || 0)
+    },
+    employees() : any {
+      return this.$store.state.employees
+    },
+    lastTitle() : any {
+      let employee = this.$store.state.lastUpdated
+      if (employee) {
+        return employee.positions[0].title
+      }
     }
   },
   methods: {
     async search() {
       let { data, meta } = await this.scope.all()
-      this.employees = data
+      ;(<any>window)['employees'] = data
+      // this.employees = data
+      this.$store.commit('setEmployees', data)
       this.totalCount = meta.stats.total.count
     },
     doSort(attribute: string) {
@@ -124,7 +134,7 @@ export default Vue.extend({
       this.search()
     },
     selectEmployee(employee: Employee): void {
-      EventBus.$emit('employee_selected', employee.id)
+      this.$store.dispatch('selectEmployee', employee.id)
     }
   }
 });

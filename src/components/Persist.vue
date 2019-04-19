@@ -1,7 +1,7 @@
 <template>
   <div class="persist card form clearfix" :class="{ success }">
     <h3>Persist</h3>
-    <form @submit.prevent="submit()">
+    <form v-if="employee" @submit.prevent="submit()">
       <div class="row">
         <div class="col-md-4">
           <div class="form-group">
@@ -64,21 +64,17 @@ import { Employee, Position, Department } from "@/models"
 export default Vue.extend({
   name: 'persist',
   created() {
-    EventBus.$on('employee_selected', (employeeId: string) => {
-      this.loadEmployee(employeeId)
-    })
-
     this.fetchDepartments()
   },
   data () {
-    let employee = new Employee({
-      positions: [new Position()]
-    })
-
     return {
-      employee,
       success: false as boolean,
       possibleDepartments: [] as Department[]
+    }
+  },
+  computed: {
+    employee() :any {
+      return this.$store.state.currentEmployee
     }
   },
   methods: {
@@ -86,11 +82,10 @@ export default Vue.extend({
       this.possibleDepartments = (await Department.all()).data
     },
     async submit() {
-      await this.employee.save({ with: { positions: "department" }})
-
       const success = await this.employee
         .save({ with: { positions: "department" }})
       if (success) {
+        this.$store.commit('setLastUpdated', this.employee.dup())
         EventBus.$emit("employee_save", this.employee)
         this.success = true
         let reset = () => {
