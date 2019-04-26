@@ -1,5 +1,6 @@
 <template>
   <div class="card query">
+    <level-one></level-one>
     <h3>Query (last title: {{lastTitle}})</h3>
     <div class='search-controls'>
       <form v-on:submit.prevent="search()">
@@ -59,11 +60,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Employee } from "@/models"
+import LevelOne from '@/components/LevelOne.vue'
 import { Scope, WhereClause, SortScope } from "spraypaint"
 import EventBus from "@/event-bus"
 
 export default Vue.extend({
   name: 'query',
+  components: { LevelOne },
   data() {
     let sort : SortScope = {
       created_at: 'desc'
